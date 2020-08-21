@@ -25,7 +25,7 @@ private:
     uint16_t CRC16CHECKMODBUS( uint8_t * pucFrame, uint16_t usLen);
     QStringList Uint16toHex(uint16_t value);
     Ui::Stethoscope *ui;
-    QList<QSerialPortInfo> port_info_list;
+    QStringList port_info_list;
     QSerialPort *serial_port;
     QStringList file_index;
     QStringList reply_list;

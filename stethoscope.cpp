@@ -58,14 +58,17 @@ Stethoscope::Stethoscope(QWidget *parent) :
 {
     ui->setupUi(this);
     serial_port=new QSerialPort(this);
-    foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts())
+    foreach(const QSerialPortInfo &info, QSerialPortInfo::availablePorts())
     {
-        port_info_list=QSerialPortInfo::availablePorts();
-        for (int i=0;i<port_info_list.size();i++) {
-            ui->serialport_combox->addItem(port_info_list[i].portName());
+        serial_port->setPort(info);
+        // 判断端口能否以读写方式打开
+        if(serial_port->open(QIODevice::ReadWrite))
+        {
+            port_info_list.append(serial_port->portName());
+            serial_port->close(); // 然后自动关闭等待人为开启（通过"打开串口按钮"）
         }
     }
-
+    ui->serialport_combox->addItems(port_info_list);
 }
 Stethoscope::~Stethoscope()
 {
@@ -84,7 +87,7 @@ void Stethoscope::on_open_serial_button_clicked()
             return;
         }
         else {
-            QMessageBox::critical(NULL,"提示","串口打开成功",QMessageBox::Ok);
+            QMessageBox::information(NULL,"提示","串口打开成功",QMessageBox::Ok);
         }
         //设置波特率
         serial_port->setBaudRate(9600);
@@ -171,11 +174,11 @@ void Stethoscope::ReadMycom()
 }
 void Stethoscope::on_close_serial_button_clicked()
 {
-        if(ui->serialport_combox->currentIndex()!=-1)
-        {
-            QMessageBox::critical(NULL,"提示","串口关闭成功",QMessageBox::Ok);
-            serial_port->close();
-        }
+    if(ui->serialport_combox->currentIndex()!=-1)
+    {
+        QMessageBox::information(NULL,"提示","串口关闭成功",QMessageBox::Ok);
+        serial_port->close();
+    }
 
 }
 uint16_t Stethoscope::CRC16CHECKMODBUS( uint8_t * pucFrame, uint16_t usLen)
