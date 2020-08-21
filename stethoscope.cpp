@@ -57,47 +57,15 @@ Stethoscope::Stethoscope(QWidget *parent) :
     ui(new Ui::Stethoscope)
 {
     ui->setupUi(this);
-//    foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts())
-//    {
-//        port_info_list=QSerialPortInfo::availablePorts();
-//        for (int i=0;i<port_info_list.size();i++) {
-//            ui->serialport_combox->addItem(port_info_list[i].portName());
-//        }
-//    }
-    PortInit();
-}
-void Stethoscope::PortInit()
-{
-    serial_port->setPortName("COM3");
-    if(!serial_port->open(QIODevice::ReadWrite))
+    serial_port=new QSerialPort(this);
+    foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts())
     {
-        qDebug()<<"serial open fail";//用ReadWrite 的模式尝试打开串口
-        QMessageBox::critical(NULL,"提示","串口打开失败",QMessageBox::Ok);
-        return;
+        port_info_list=QSerialPortInfo::availablePorts();
+        for (int i=0;i<port_info_list.size();i++) {
+            ui->serialport_combox->addItem(port_info_list[i].portName());
+        }
     }
-    else {
-        QMessageBox::critical(NULL,"提示","串口打开成功",QMessageBox::Ok);
-    }
-    //设置波特率
-    serial_port->setBaudRate(9600);
-    //设置数据位数
-    serial_port->setDataBits(QSerialPort::Data8);
-    //设置奇偶校验
-    serial_port->setParity(QSerialPort::NoParity);
-    //设置停止位
-    serial_port->setStopBits(QSerialPort::OneStop);
-    //设置流控制
-    serial_port->setFlowControl(QSerialPort::NoFlowControl);
-    QByteArray arry;
-    arry.resize(6);
-    arry[0]=0x5A;
-    arry[1]=0xA5;
-    arry[2]=0x00;
-    arry[3]=0x81;
-    arry[4]=0xC2;
-    arry[5]=0xBF;
-    serial_port->write(arry);
-    connect( serial_port, SIGNAL(readyRead()), this, SLOT(ReadMycom()));
+
 }
 Stethoscope::~Stethoscope()
 {
@@ -105,40 +73,40 @@ Stethoscope::~Stethoscope()
 }
 
 void Stethoscope::on_open_serial_button_clicked()
-{
-//    if(ui->serialport_combox->currentIndex()!=-1)
-//    {
-//        serial_port->setPortName(ui->serialport_combox->currentText());
-//        if(!serial_port->open(QIODevice::ReadWrite))
-//        {
-//            qDebug()<<"serial open fail";//用ReadWrite 的模式尝试打开串口
-//            QMessageBox::critical(NULL,"提示","串口打开失败",QMessageBox::Ok);
-//            return;
-//        }
-//        else {
-//            QMessageBox::critical(NULL,"提示","串口打开成功",QMessageBox::Ok);
-//        }
-//        //设置波特率
-//        serial_port->setBaudRate(9600);
-//        //设置数据位数
-//        serial_port->setDataBits(QSerialPort::Data8);
-//        //设置奇偶校验
-//        serial_port->setParity(QSerialPort::NoParity);
-//        //设置停止位
-//        serial_port->setStopBits(QSerialPort::OneStop);
-//        //设置流控制
-//        serial_port->setFlowControl(QSerialPort::NoFlowControl);
-//        QByteArray arry;
-//        arry.resize(6);
-//        arry[0]=0x5A;
-//        arry[1]=0xA5;
-//        arry[2]=0x00;
-//        arry[3]=0x81;
-//        arry[4]=0xC2;
-//        arry[5]=0xBF;
-//        serial_port->write(arry);
-//        connect( serial_port, SIGNAL(readyRead()), this, SLOT(ReadMycom()));
-//    }
+{    
+    if(ui->serialport_combox->currentIndex()!=-1)
+    {
+        serial_port->setPortName(ui->serialport_combox->currentText());
+        if(!serial_port->open(QIODevice::ReadWrite))
+        {
+            qDebug()<<"serial open fail";//用ReadWrite 的模式尝试打开串口
+            QMessageBox::critical(NULL,"提示","串口打开失败",QMessageBox::Ok);
+            return;
+        }
+        else {
+            QMessageBox::critical(NULL,"提示","串口打开成功",QMessageBox::Ok);
+        }
+        //设置波特率
+        serial_port->setBaudRate(9600);
+        //设置数据位数
+        serial_port->setDataBits(QSerialPort::Data8);
+        //设置奇偶校验
+        serial_port->setParity(QSerialPort::NoParity);
+        //设置停止位
+        serial_port->setStopBits(QSerialPort::OneStop);
+        //设置流控制
+        serial_port->setFlowControl(QSerialPort::NoFlowControl);
+        QByteArray arry;
+        arry.resize(6);
+        arry[0]=0x5A;
+        arry[1]=0xA5;
+        arry[2]=0x00;
+        arry[3]=0x81;
+        arry[4]=0xC2;
+        arry[5]=0xBF;
+        serial_port->write(arry);
+        connect( serial_port, SIGNAL(readyRead()), this, SLOT(ReadMycom()));
+    }
 }
 void Stethoscope::ReadMycom()
 {
@@ -203,11 +171,11 @@ void Stethoscope::ReadMycom()
 }
 void Stethoscope::on_close_serial_button_clicked()
 {
-//    if(ui->serialport_combox->currentIndex()!=-1)
-//    {
-//        QMessageBox::critical(NULL,"提示","串口关闭成功",QMessageBox::Ok);
-//        serial_port->close();
-//    }
+        if(ui->serialport_combox->currentIndex()!=-1)
+        {
+            QMessageBox::critical(NULL,"提示","串口关闭成功",QMessageBox::Ok);
+            serial_port->close();
+        }
 
 }
 uint16_t Stethoscope::CRC16CHECKMODBUS( uint8_t * pucFrame, uint16_t usLen)
